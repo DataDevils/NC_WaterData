@@ -1,4 +1,4 @@
-# NC Water Data
+# NC Water Data Exploration
 
 Descriptions of various water-related data sources and some Python notebooks demonstrating how the data can be downloaded/scraped and visualized. 
 
@@ -6,7 +6,11 @@ Descriptions of various water-related data sources and some Python notebooks dem
 
 ---
 
-### ♦ Executive Summary♦:
+## ♦ Executive Summary♦:
+
+I spend a chunk of time exploring various internet resources for useful water data. I evaluated these sites on the relevance of the data they provided as well as how easily the data could be accessed and downloaded. I found a number of useful national, state, and some local datasets which are summarized and evaluated below. I also generated a number of Python snippets, provided as interactive Python notebooks (ipynb) files that show how some of these datasets are accessed and visualized. 
+
+**Summary of datasets evaluated**
 
 | Source | Dataset                     | Ease of Access (1-5) | Data Utility (1-5) | Comments                                                     |
 | ------ | --------------------------- | :------------------: | :----------------: | ------------------------------------------------------------ |
@@ -17,13 +21,15 @@ Descriptions of various water-related data sources and some Python notebooks dem
 | EPA    | PCS/ICIS                    |          ♣♣          |        ♣♣♣♣        | Data rich, but hard to scrape. Slow.                         |
 | NWQMC  | Water Quality Portal        |        ♣♣♣♣♣         |       ♣♣♣♣♣        | Well organized and comprehensive data                        |
 
+
+
 ---
 
 ## I. National Data Sources
 
 ### A. EWG's Tap Water Database
 
-- **<u>Conclusion</u>**: **Some Utility, but difficult to scrape and the data are likely available elsewhere** 
+- **<u>Conclusion</u>**: **Some utility, but difficult to scrape and the data are likely available elsewhere** 
   - A well-organized central repository, useful for cross-referencing other scrapes.
   - Requires code to iterate through water districts and scrapes formatted pages. 
 
