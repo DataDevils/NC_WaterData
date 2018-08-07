@@ -1,37 +1,170 @@
-<H1>NC Water Data</H1>
+# NC Water Data
 
-Tools to find and extract water data from various internet sources
+Descriptions of various water-related data sources and some Python notebooks demonstrating how the data can be downloaded/scraped and visualized. 
 
 [TOC]
 
 ---
 
-##  Charlotte Water Data
+### ♦ Executive Summary♦:
 
-* Charlotte Water hosts spatial and tabular data on its ArcGIS server: <https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public> 
-* These data include the groupings listed below. and the links provide additional information and full metadata. 
-  * [Public/CLTW_DrinkingWaterBoundaries](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterBoundaries/MapServer) 
-  * [Public/CLTW_DrinkingWaterCHLORINE2](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterCHLORINE2/MapServer) 
-  * [Public/CLTW_DrinkingWaterDBP](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterDBP/MapServer) 
-  * [Public/CLTW_DrinkingWaterINORGANIC2](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterINORGANIC2/MapServer) 
-  * [Public/CLTW_DrinkingWaterLEAD5](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterLEAD5/MapServer) 
-  * [Public/CLTW_DrinkingWaterMICRO](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterMICRO/MapServer) 
-  * [Public/CLTW_DrinkingWaterORGANICS](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterORGANICS/MapServer) 
-  * [Public/CLTW_DrinkingWaterQuality_2017](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterQuality_2017/MapServer) 
-  * [Public/CLTW_DrinkingWaterQualityReport](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterQualityReport/MapServer) 
-  * [Public/CLTW_DrinkingWaterSECONDARY](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterSECONDARY/MapServer) 
-  * [Public/CLTW_MeckCountyWQ](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_MeckCountyWQ/MapServer) 
-  * [Public/CLTW_SchoolsLCR_PlanningUPDATED](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_SchoolsLCR_PlanningUPDATED/MapServer) 
-  * [Public/CLTW_VFD_Hydrants](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_VFD_Hydrants/MapServer) 
-  * [Public/CLTW_WaterQualityUpdates_2018](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_WaterQualityUpdates_2018/MapServer) 
-* The notebook `1-CharlotteScraper.ipynb` pulls all these data into CSV formatted files. Often two files are generated: one describing the sites where data were collected, and the other the data pulled from each site tagged with a timestamp.
-* The notebook `2-CharlotteDataExplorer.ipynb` is an example of how these data, extracted from the CSV files, can be analyzed and visualized. 
+| Source | Dataset                     | Ease of Access (1-5) | Data Utility (1-5) | Comments                                                     |
+| ------ | --------------------------- | :------------------: | :----------------: | ------------------------------------------------------------ |
+| EWG    | Tap Water Database          |          ♣♣          |        ♣♣♣         | Not updated, Hard to scrape                                  |
+| EPA    | Consumer Confidence Reports |         ♣♣♣          |         ♣♣         | Data gaps, Inconsistent                                      |
+| EPA    | ECHO                        |        ♣♣♣♣♣         |       ♣♣♣♣♣        | Good, but so much data it's hard to know what's what         |
+| EPA    | SWDIS                       |          ♣♣          |        ♣♣♣         | Poorly designed interface. Data possibly redundant with ECHO. |
+| EPA    | PCS/ICIS                    |          ♣♣          |        ♣♣♣♣        | Data rich, but hard to scrape. Slow.                         |
+| NWQMC  | Water Quality Portal        |        ♣♣♣♣♣         |       ♣♣♣♣♣        | Well organized and comprehensive data                        |
 
 ---
 
-## NC Department of Environmental Quality
+## I. National Data Sources
 
-### Water Withdrawal & Transfer Registration
+### A. EWG's Tap Water Database
+
+- **<u>Conclusion</u>**: **Some Utility, but difficult to scrape and the data are likely available elsewhere** 
+  - A well-organized central repository, useful for cross-referencing other scrapes.
+  - Requires code to iterate through water districts and scrapes formatted pages. 
+
+- <u>Link</u>: https://www.ewg.org/tapwater/index.php
+- <u>Summary</u>: The Environmental Working Group contacted each state for water quality reports and compiled a centralized database of water quality metrics for each water supplier. 
+- <u>Data Link</u> (NC): https://www.ewg.org/tapwater/state.php?stab=NC
+  - Returns HTML page containing JavaScript that calls up other data; <u>not easily scraped</u>. 
+    - https://www.ewg.org/tapwater/search-results.php?stab=NC&searchtype=largesys
+  - However, can query: https://www.ewg.org/tapwater/system.php?pws=NC0102020 (replacing numeric code with id's found here: https://www.ncwater.org/Water_Supply_Planning/Local_Water_Supply_Plan/search.php) to get a somewhat scrape-able page of contaminant levels. 
+- <u>Other</u>: Would EWG share their raw database? 
+
+
+
+### B. EPA Consumer Confidence Reports (CCR)
+
+- **<u>Conclusion</u>**: **Not Helpful**
+  - While scraping is fairly straightforward, the data are inconsistent with many missing values
+- <u>Link</u>: https://www.epa.gov/ccr
+- <u>Summary</u>: Community Water Systems (CWS) are required to provide drinking water quality reports to customers. 
+- <u>Data link</u>: https://ofmpub.epa.gov/apex/safewater/f?p=136:102::::::
+  - Cryptic REST interface, but state summary data can easily be scraped.
+  - Summary data includes few details, relevant data (City, County, Population Served). Some have website links, but not all are working. Links likely go to glossy summaries that don't facilitate scraping. 
+- <u>Code</u>:
+  - `EPA/Explore-CCR-Reports.ipynb`: a brief exploration of pre-downloaded data in CSV format.
+
+
+
+### C. EPA Enforcement and Compliance History Online (ECHO)
+
+- **<u>Conclusion</u>**: ***Promising!***
+  - Established data services capabilities with documented web services
+  - Holds many datasets, though so much that it's somewhat confusing what it holds:
+    - Drinking Water: https://echo.epa.gov/tools/web-services/facility-search-drinking-water
+    - Water Facility: https://echo.epa.gov/tools/web-services/facility-search-water
+- <u>Link</u>: https://echo.epa.gov/
+- <u>Summary</u>: Provides compliance and enforcement information for over 900,000 regulated facilities nationwide. Allows query at state/county/city/zip level for a table of facilities and their compliance records. Not limited to water (NPDES and drinking water); includes air, hazardous waste,...
+- <u>Data</u>:
+  - Main pages searches by form. Not REST interface. CSV's generated with temporary link. 	
+  - [!] Issue with NC Data: https://echo.epa.gov/resources/echo-data/known-data-problems#NCalerts
+  - <u>Web services</u> provided: https://echo.epa.gov/tools/web-services
+    - Documentation is a bit obtuse, generates temporary result files (valid for 30 min)
+- <u>Code</u>:
+  - `EPA/EPA-ECHO-DMR.ipynb`: Explores data downloaded from EPA's annual DMR data archive (monthly records across permit holders in NC.)
+
+
+
+### D. EPA Safe Drinking Water Information System (SWDIS)
+
+- **<u>Conclusion</u>**: Potential, but the data are obscurely layered across different servers. Possibly redundant with ECHO. 
+
+  - Queries must be done iteratively. Server is often down.
+
+- <u>Link</u>: https://www.epa.gov/enviro/topic-searches#water
+
+- <u>Summary</u>: Data on violations and enforcement history since 1993 of the EPA's drinking water regulations. 
+
+  Link to various portals:
+
+  - Information Collection Rule (ICR) [No longer maintained]: 
+    https://archive.epa.gov/enviro/html/icr/web/html/nc.html
+  - **Permit Compliance System (PCS)** & **Integrated Compliance Information System (ICIS)** permits to discharge wastewater into rivers https://www.epa.gov/enviro/pcs-icis-search
+
+- <u>Data</u>:
+
+  - EPA: https://www3.epa.gov/enviro/facts/sdwis/search.html
+
+    - https://oaspub.epa.gov/enviro/sdw_query_v3.get_list?&sys_status=active&pop_serv=&fac_state=NC
+    - Then need to scrape sub-tables..
+
+  - Link: https://pws.ncwater.org/PWSReports/pages/default.aspx
+
+    - Enter Durham: 0332010
+
+    https://www.pwss.enr.state.nc.us/NCDWW2/JSP/WaterSystemDetail.jsp?tinwsys_is_number=15263&tinwsys_st_code=NC&wsnumber=NC0332010
+
+  - Turbidity: https://www.pwss.enr.state.nc.us/NCDWW2/JSP/turbsummary.jsp?tinwsys_is_number=15263&tinwsys_st_code=NC&begin_date=&end_date=&counter=0
+
+  - Example call: [https://oaspub.epa.gov/enviro/sdw_query_v3.get_list?fac_city=&last_fac_name=&query_results=&fac_search=fac_beginning&sys_status=&fac_county=&fac_state=NC&page=1&pop_serv=&total_rows_found=&wsys_name=&wsys_id=](https://oaspub.epa.gov/enviro/sdw_query_v3.get_list?fac_city=&last_fac_name=&query_results=&fac_search=fac_beginning&sys_status=&fac_county=&fac_state=NC&page=1&pop_serv=&total_rows_found=&wsys_name=&wsys_id=)
+
+- <u>Code</u>: 
+
+  - `EPA/EPA_SDWIS.ipynb`: Query <https://www3.epa.gov/enviro/facts/sdwis/search.html> and scrapes results (in progress)
+
+
+
+### E. EPA Permit Compliance System/Integrated Compliance Information System (PCS/ICIS)
+
+* <u>**Conclusion**</u>: Gateway to much data, but clumsy click interface. Uses REST, but documentation is scant and structure is lacking. Results are formatted. Potential, but will work hard for the data, which may be replicated elsewhere (ECHO?)
+* <u>Link</u>: https://www.epa.gov/enviro/pcs-icis-search
+* <u>Summary</u>: A portal to search for specific facilities included in the EPA's Facility Registry Service ([FRS](https://www.epa.gov/frs))
+* Data: 
+  * Many search entry points: https://www.epa.gov/enviro/pcs-icis-search
+  * Search for Durham Co.: 
+  * Example call (one facility in Durham): https://iaspub.epa.gov/enviro/fii_query_dtl.disp_program_facility?pgm_sys_id_in=NCG140095&pgm_sys_acrnm_in=NPDES
+
+
+
+### F. US Water Quality Portal
+
+- **<u>Conclusion</u>**: ***Most promising!*** 
+  - Repository of many datasets from multiple sources (EPA, USGS).
+  - Web services and file shares provide ready access to data with excellent documentation
+  - Need to compare what data are provided relative to state/local data portals. 
+
+- <u>Link</u>: https://www.waterqualitydata.us/
+- <u>Summary</u>:
+  The Water Quality Portal (WQP) is a cooperative service sponsored by the United States Geological Survey (USGS), the Environmental Protection Agency (EPA), and the National Water Quality Monitoring Council (NWQMC). It serves data collected by over 400 state, federal, tribal, and local agencies: https://www.waterqualitydata.us/. The data include information on sites where data are gathered, physical/chemical monitoring data, and biological sample data. Complete metadata are available here: https://www.waterqualitydata.us/portal_userguide/
+- <u>Data:</u>
+  - Complete web services documentation: https://www.waterqualitydata.us/webservices_documentation/
+- Code:
+  * `USWQP/USWaterData-Scrape.ipynb` uses the WQP web service to pull station data for all sites in Durham Co. (N = 489). 
+  *  `USWQP/USWaterData-Explore.ipynb` provides and example for ingesting and visualizing the US Water Quality Portal data scraped for Durham County. 
+
+---
+
+## II. State Data Sources
+
+### A. NCDEQ 
+
+#### 1. Water Resources Information, Storage, Analysis, and Retrieval System (WRISARS)
+
+* **<u>Conclusion</u>**: Promising, but possibly difficult to scrape. Lots of good data centrally stored. 
+
+- Need to develop scraping scripts; would be best to get access to data directly. NC Department of Environmental Quality
+
+- Link: https://www.ncwater.org/?page=341; https://www.ncwater.org/wrisars/
+
+- Summary: 
+  A collaborative effort between the NC Division of Water Resources, the NC State Climate Office, the US Army Corps of Engineers, the NC DWR Ground Water Management Section, and the US Geological Survey (USGS). 
+
+- Data: Includes values for current conditions (stream flow, groundwater levels, reservoir levels, weather/precip, and water conservation level). Query tools for stations, and HEC-DSS models. Historical data including link to water supply plans. 
+
+  - Central Coastal Plain Capacity Use Area reports: https://www.ncwater.org/?page=49
+  - Water withdrawal and transfer reports: http://www.ncwater.org/Permits_and_Registration/Water_Withdrawal_and_Transfer_Registration/report
+    - Get facility ID and year and you can get a html page with withdrawal information (max daily by month) and discharge info. 
+  - Water supply plans
+  - https://www.ncwater.org/wrisars/StationList.php?ckState=on&state=NC&sortBy=site&submit=submit
+
+  
+
+#### 2. Water Withdrawal & Transfer Registration
 
 * The NC DEQ maintains a database of registered water withdrawal facilities that includes the amounts of withdrawals, discharges, and transfers going back to 1999. See http://www.ncwater.org/Permits_and_Registration/Water_Withdrawal_and_Transfer_Registration/. 
 
@@ -69,63 +202,55 @@ Tools to find and extract water data from various internet sources
 
 * The notebook `NCDEQ\2-ExploreNCWithdrawalData.ipynb` provides and example of how the above files can be accessed and the data visualized.
 
-### NC Water Supply Plans
-
-The notebook `NCDEQ\X-WaterSupplyPlanScraper.ipynb` is a work in progress to scrape the annual water supply plan data from the Department of Water Resources portal:<br> https://www.ncwater.org/Water_Supply_Planning/Local_Water_Supply_Plan/
 
 
+#### 3. NC Water Resources Information Technology Branch
 
----
-
-## US Water Quality Portal
-
-The Water Quality Portal (WQP) is a cooperative service sponsored by the United States Geological Survey (USGS), the Environmental Protection Agency (EPA), and the National Water Quality Monitoring Council (NWQMC). It serves data collected by over 400 state, federal, tribal, and local agencies: https://www.waterqualitydata.us/. The data include information on sites where data are gathered, physical/chemical monitoring data, and biological sample data. Complete metadata are availble here: https://www.waterqualitydata.us/portal_userguide/
-
-The notebook `USWQP/USWaterData-Scrape.ipynb` uses the WQP web service to pull station data for all sites in Durham Co. (N = 489). The attributes include the following: 
-
-♦ **USWQP/DurhamSites.csv**
-
-| OrganizationIdentifier | OrganizationFormalName | MonitoringLocationIdentifier | MonitoringLocationName | MonitoringLocationTypeName | MonitoringLocationDescriptionText | HUCEightDigitCode | DrainageAreaMeasure/MeasureValue | DrainageAreaMeasure/MeasureUnitCode | ContributingDrainageAreaMeasure/MeasureValue | ContributingDrainageAreaMeasure/MeasureUnitCode | LatitudeMeasure | LongitudeMeasure | SourceMapScaleNumeric | HorizontalAccuracyMeasure/MeasureValue | HorizontalAccuracyMeasure/MeasureUnitCode | HorizontalCollectionMethodName | HorizontalCoordinateReferenceSystemDatumName | VerticalMeasure/MeasureValue | VerticalMeasure/MeasureUnitCode | VerticalAccuracyMeasure/MeasureValue | VerticalAccuracyMeasure/MeasureUnitCode | VerticalCollectionMethodName | VerticalCoordinateReferenceSystemDatumName | CountryCode | StateCode | CountyCode | AquiferName | FormationTypeText | AquiferTypeName | ConstructionDateText | WellDepthMeasure/MeasureValue | WellDepthMeasure/MeasureUnitCode | WellHoleDepthMeasure/MeasureValue | WellHoleDepthMeasure/MeasureUnitCode | ProviderName |
-| ---------------------- | ---------------------- | ---------------------------- | ---------------------- | -------------------------- | --------------------------------- | ----------------- | -------------------------------- | ----------------------------------- | -------------------------------------------- | ----------------------------------------------- | --------------- | ---------------- | --------------------- | -------------------------------------- | ----------------------------------------- | ------------------------------ | -------------------------------------------- | ---------------------------- | ------------------------------- | ------------------------------------ | --------------------------------------- | ---------------------------- | ------------------------------------------ | ----------- | --------- | ---------- | ----------- | ----------------- | --------------- | -------------------- | ----------------------------- | -------------------------------- | --------------------------------- | ------------------------------------ | ------------ |
-|                        |                        |                              |                        |                            |                                   |                   |                                  |                                     |                                              |                                                 |                 |                  |                       |                                        |                                           |                                |                                              |                              |                                 |                                      |                                         |                              |                                            |             |           |            |             |                   |                 |                      |                               |                                  |                                   |                                      |              |
-
-♦ **USWQP/DurhamActivity.csv**:
-
-| OrganizationIdentifier | OrganizationFormalName | MonitoringLocationIdentifier | ActivityIdentifier | ActivityMetricType/MetricTypeIdentifier | ActivityMetricType/MetricTypeIdentifierContext | ActivityMetricType/MetricTypeName | MetricTypeCitation/ResourceTitleName | MetricTypeCitation/ResourceCreatorName | MetricTypeCitation/ResourceSubjectText | MetricTypeCitation/ResourcePublisherName | MetricTypeCitation/ResourceDate | MetricTypeCitation/ResourceIdentifier | MetricTypeCitation/MetricTypeScaleText | MetricTypeCitation/FormulaDescriptionText | MetricValueMeasure/MeasureValue | MetricValueMeasure/MeasureUnitCode | MetricValueMeasure/MetricScoreNumeric | MetricValueMeasure/MetricCommentText | MetricValueMeasure/IndexIdentifier | ProviderName |
-| ---------------------- | ---------------------- | ---------------------------- | ------------------ | --------------------------------------- | ---------------------------------------------- | --------------------------------- | ------------------------------------ | -------------------------------------- | -------------------------------------- | ---------------------------------------- | ------------------------------- | ------------------------------------- | -------------------------------------- | ----------------------------------------- | ------------------------------- | ---------------------------------- | ------------------------------------- | ------------------------------------ | ---------------------------------- | ------------ |
-|                        |                        |                              |                    |                                         |                                                |                                   |                                      |                                        |                                        |                                          |                                 |                                       |                                        |                                           |                                 |                                    |                                       |                                      |                                    |              |
-
-♦ **USWQP/DurhamResults.csv**:
-
-| OrganizationIdentifier | OrganizationFormalName                                       | ActivityIdentifier             | ActivityTypeCode | ActivityMediaName | ActivityMediaSubdivisionName | ActivityStartDate | ActivityStartTime/Time | ActivityStartTime/TimeZoneCode | ActivityEndDate | ActivityEndTime/Time | ActivityEndTime/TimeZoneCode | ActivityDepthHeightMeasure/MeasureValue | ActivityDepthHeightMeasure/MeasureUnitCode | ActivityDepthAltitudeReferencePointText | ActivityTopDepthHeightMeasure/MeasureValue | ActivityTopDepthHeightMeasure/MeasureUnitCode | ActivityBottomDepthHeightMeasure/MeasureValue | ActivityBottomDepthHeightMeasure/MeasureUnitCode | ProjectIdentifier | ActivityConductingOrganizationText                 | MonitoringLocationIdentifier | ActivityCommentText                                   | SampleAquifer | HydrologicCondition | HydrologicEvent | SampleCollectionMethod/MethodIdentifier | SampleCollectionMethod/MethodIdentifierContext | SampleCollectionMethod/MethodName | SampleCollectionEquipmentName | ResultDetectionConditionText | CharacteristicName | ResultSampleFractionText | ResultMeasureValue | ResultMeasure/MeasureUnitCode | MeasureQualifierCode | ResultStatusIdentifier | StatisticalBaseCode | ResultValueTypeName | ResultWeightBasisText | ResultTimeBasisText | ResultTemperatureBasisText | ResultParticleSizeBasisText | PrecisionValue | ResultCommentText | USGSPCode | ResultDepthHeightMeasure/MeasureValue | ResultDepthHeightMeasure/MeasureUnitCode | ResultDepthAltitudeReferencePointText | SubjectTaxonomicName | SampleTissueAnatomyName | ResultAnalyticalMethod/MethodIdentifier | ResultAnalyticalMethod/MethodIdentifierContext | ResultAnalyticalMethod/MethodName | MethodDescriptionText | LaboratoryName | AnalysisStartDate | ResultLaboratoryCommentText | DetectionQuantitationLimitTypeName | DetectionQuantitationLimitMeasure/MeasureValue | DetectionQuantitationLimitMeasure/MeasureUnitCode | PreparationStartDate | ProviderName |
-| ---------------------- | ------------------------------------------------------------ | ------------------------------ | ---------------- | ----------------- | ---------------------------- | ----------------- | ---------------------- | ------------------------------ | --------------- | -------------------- | ---------------------------- | --------------------------------------- | ------------------------------------------ | --------------------------------------- | ------------------------------------------ | --------------------------------------------- | --------------------------------------------- | ------------------------------------------------ | ----------------- | -------------------------------------------------- | ---------------------------- | ----------------------------------------------------- | ------------- | ------------------- | --------------- | --------------------------------------- | ---------------------------------------------- | --------------------------------- | ----------------------------- | ---------------------------- | ------------------ | ------------------------ | ------------------ | ----------------------------- | -------------------- | ---------------------- | ------------------- | ------------------- | --------------------- | ------------------- | -------------------------- | --------------------------- | -------------- | ----------------- | --------- | ------------------------------------- | ---------------------------------------- | ------------------------------------- | -------------------- | ----------------------- | --------------------------------------- | ---------------------------------------------- | --------------------------------- | --------------------- | -------------- | ----------------- | --------------------------- | ---------------------------------- | ---------------------------------------------- | ------------------------------------------------- | -------------------- | ------------ |
-| 21NC03WQ               | North Carolina Department of Environmental Resources NCDENR-DWQ WQX | 21NC03WQ-NCLAKESMON22999-2011I | Field Msr/Obs    | Water             |                              | 8/9/2011          |                        |                                |                 |                      |                              | 1                                       | m                                          |                                         |                                            |                                               |                                               |                                                  | NCLAKESMON        | NC Lakes Monitoring - NC Division of Water Quality | 21NC03WQ-LLC01               | Dissolved Oxygen not recorded due to   meter problems |               |                     |                 | Temperature, water                      | 30.6                                           | deg C                             |                               | Final                        |                    | Actual                   |                    |                               |                      |                        |                     |                     |                       |                     |                            |                             |                |                   | WSSSOP    | 21NC03WQ                              | WSSSOP                                   |                                       |                      |                         |                                         |                                                |                                   |                       |                | STORET            |                             |                                    |                                                |                                                   |                      |              |
-
-♦ **USWQP/DurhamSamples.csv**
-
-| OrganizationIdentifier | OrganizationFormalName                                       | ActivityIdentifier         | ActivityTypeCode | ActivityMediaName | ActivityMediaSubdivisionName | ActivityStartDate | ActivityStartTime/Time | ActivityStartTime/TimeZoneCode | ActivityEndDate | ActivityEndTime/Time | ActivityEndTime/TimeZoneCode | ActivityRelativeDepthName | ActivityDepthHeightMeasure/MeasureValue | ActivityDepthHeightMeasure/MeasureUnitCode | ActivityDepthAltitudeReferencePointText | ActivityTopDepthHeightMeasure/MeasureValue | ActivityTopDepthHeightMeasure/MeasureUnitCode | ActivityBottomDepthHeightMeasure/MeasureValue | ActivityBottomDepthHeightMeasure/MeasureUnitCode | ProjectIdentifier | ActivityConductingOrganizationText | MonitoringLocationIdentifier | ActivityCommentText | SampleAquifer | HydrologicCondition | HydrologicEvent | ActivityLocation/LatitudeMeasure | ActivityLocation/LongitudeMeasure | ActivityLocation/SourceMapScaleNumeric | ActivityLocation/HorizontalAccuracyMeasure/MeasureValue | ActivityLocation/HorizontalAccuracyMeasure/MeasureUnitCode | ActivityLocation/HorizontalCollectionMethodName | ActivityLocation/HorizontalCoordinateReferenceSystemDatumName | AssemblageSampledName | CollectionDuration/MeasureValue | CollectionDuration/MeasureUnitCode | SamplingComponentName | SamplingComponentPlaceInSeriesNumeric | ReachLengthMeasure/MeasureValue | ReachLengthMeasure/MeasureUnitCode | ReachWidthMeasure/MeasureValue | ReachWidthMeasure/MeasureUnitCode | PassCount | NetTypeName | NetSurfaceAreaMeasure/MeasureValue | NetSurfaceAreaMeasure/MeasureUnitCode | NetMeshSizeMeasure/MeasureValue | NetMeshSizeMeasure/MeasureUnitCode | BoatSpeedMeasure/MeasureValue | BoatSpeedMeasure/MeasureUnitCode | CurrentSpeedMeasure/MeasureValue | CurrentSpeedMeasure/MeasureUnitCode | ToxicityTestType | SampleCollectionMethod/MethodIdentifier | SampleCollectionMethod/MethodIdentifierContext | SampleCollectionMethod/MethodName | SampleCollectionMethod/MethodQualifierTypeName | SampleCollectionMethod/MethodDescriptionText | SampleCollectionEquipmentName | SampleCollectionMethod/SampleCollectionEquipmentCommentText | SamplePreparationMethod/MethodIdentifier | SamplePreparationMethod/MethodIdentifierContext | SamplePreparationMethod/MethodName | SamplePreparationMethod/MethodQualifierTypeName | SamplePreparationMethod/MethodDescriptionText | SampleContainerTypeName                                      | SampleContainerColorName | ChemicalPreservativeUsedName | ThermalPreservativeUsedName | SampleTransportStorageDescription | ActivityMetricURL | ProviderName |
-| ---------------------- | ------------------------------------------------------------ | -------------------------- | ---------------- | ----------------- | ---------------------------- | ----------------- | ---------------------- | ------------------------------ | --------------- | -------------------- | ---------------------------- | ------------------------- | --------------------------------------- | ------------------------------------------ | --------------------------------------- | ------------------------------------------ | --------------------------------------------- | --------------------------------------------- | ------------------------------------------------ | ----------------- | ---------------------------------- | ---------------------------- | ------------------- | ------------- | ------------------- | --------------- | -------------------------------- | --------------------------------- | -------------------------------------- | ------------------------------------------------------- | ---------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------ | --------------------- | ------------------------------- | ---------------------------------- | --------------------- | ------------------------------------- | ------------------------------- | ---------------------------------- | ------------------------------ | --------------------------------- | --------- | ----------- | ---------------------------------- | ------------------------------------- | ------------------------------- | ---------------------------------- | ----------------------------- | -------------------------------- | -------------------------------- | ----------------------------------- | ---------------- | --------------------------------------- | ---------------------------------------------- | --------------------------------- | ---------------------------------------------- | -------------------------------------------- | ----------------------------- | ----------------------------------------------------------- | ---------------------------------------- | ----------------------------------------------- | ---------------------------------- | ----------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------ | ------------------------ | ---------------------------- | --------------------------- | --------------------------------- | ----------------- | ------------ |
-| 21NC03WQ               | North Carolina Department of Environmental Resources NCDENR-DWQ WQX | 21NC03WQ-AMS2009-001595595 | Sample-Routine   | Water             |                              | 2/5/2009          | 11:20:00               | EST                            |                 |                      |                              |                           | 0.1                                     | m                                          |                                         |                                            |                                               |                                               |                                                  | NCAMBNT           | 21NC03WQ-J1070000                  |                              |                     |               |                     |                 |                                  |                                   |                                        |                                                         |                                                            |                                                 |                                                              |                       |                                 |                                    |                       |                                       |                                 |                                    |                                |                                   |           |             |                                    |                                       |                                 |                                    |                               |                                  | Grab                             | 21NC03WQ                            | Grab             |                                         |                                                | Water Sampler (Other)             |                                                |                                              |                               |                                                             |                                          |                                                 |                                    |                                                 |                                               | https://www.waterqualitydata.us/activities/21NC03WQ-AMS2009-001595595/activitymetrics | STORET                   |                              |                             |                                   |                   |              |
+- Link: https://deq.nc.gov/about/divisions/water-resources/planning/information-technology-branch
+  - Site map: https://www.ncwater.org/?page=619
+- Summary:
+  The Water Resources Information Technology Branch develops and maintains the Division's computer applications and databases.  The branch is comprised of three units:  BIMS support, Public Water Supply support, and Water Planning support. Links to many applications storing/hosting water data. 
+- **<u>Conclusion</u>**: Useful pointer to *other* data stores
 
 
 
- `USWQP/USWaterData-Explore.ipynb` provides and example for ingesting and visualizing the US Water Quality Portal data scraped for Durham County. 
-
----
-
-## EPA 
-
-### Enforcement and Compliance History Online (ECHO)
-
-### Public Water System Supervision/Drinking Water Watch
+### B. Public Water System Supervision/Drinking Water Watch
 
 Link: https://deq.nc.gov/about/divisions/water-resources/drinking-water/sampling-status-and-drinking-water-watch
 
 Public Water System Supervision 
 
-### EPA Safe Drinking Water Information System
 
-Link: 
 
-Example call: https://oaspub.epa.gov/enviro/sdw_query_v3.get_list?fac_city=&last_fac_name=&query_results=&fac_search=fac_beginning&sys_status=&fac_county=&fac_state=NC&page=1&pop_serv=&total_rows_found=&wsys_name=&wsys_id=
+### C. NC Water Supply Plans
 
+The notebook `NCDEQ\X-WaterSupplyPlanScraper.ipynb` is a work in progress to scrape the annual water supply plan data from the Department of Water Resources portal:<br> https://www.ncwater.org/Water_Supply_Planning/Local_Water_Supply_Plan/
+
+---
+
+## III. Local Data Sources
+
+### Charlotte Water Data
+
+- Charlotte Water hosts spatial and tabular data on its ArcGIS server: <https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public> 
+- These data include the groupings listed below. and the links provide additional information and full metadata. 
+  - [Public/CLTW_DrinkingWaterBoundaries](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterBoundaries/MapServer) 
+  - [Public/CLTW_DrinkingWaterCHLORINE2](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterCHLORINE2/MapServer) 
+  - [Public/CLTW_DrinkingWaterDBP](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterDBP/MapServer) 
+  - [Public/CLTW_DrinkingWaterINORGANIC2](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterINORGANIC2/MapServer) 
+  - [Public/CLTW_DrinkingWaterLEAD5](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterLEAD5/MapServer) 
+  - [Public/CLTW_DrinkingWaterMICRO](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterMICRO/MapServer) 
+  - [Public/CLTW_DrinkingWaterORGANICS](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterORGANICS/MapServer) 
+  - [Public/CLTW_DrinkingWaterQuality_2017](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterQuality_2017/MapServer) 
+  - [Public/CLTW_DrinkingWaterQualityReport](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterQualityReport/MapServer) 
+  - [Public/CLTW_DrinkingWaterSECONDARY](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_DrinkingWaterSECONDARY/MapServer) 
+  - [Public/CLTW_MeckCountyWQ](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_MeckCountyWQ/MapServer) 
+  - [Public/CLTW_SchoolsLCR_PlanningUPDATED](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_SchoolsLCR_PlanningUPDATED/MapServer) 
+  - [Public/CLTW_VFD_Hydrants](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_VFD_Hydrants/MapServer) 
+  - [Public/CLTW_WaterQualityUpdates_2018](https://cltwmaps.ci.charlotte.nc.us/arcgis/rest/services/Public/CLTW_WaterQualityUpdates_2018/MapServer) 
+- The notebook `1-CharlotteScraper.ipynb` pulls all these data into CSV formatted files. Often two files are generated: one describing the sites where data were collected, and the other the data pulled from each site tagged with a timestamp.
+- The notebook `2-CharlotteDataExplorer.ipynb` is an example of how these data, extracted from the CSV files, can be analyzed and visualized. 
+
+------
+
+## 
